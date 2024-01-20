@@ -1,0 +1,31 @@
+#include <windows.h>
+#pragma comment(lib, "advapi32.lib")
+#pragma comment(lib, "msimg32.lib")
+
+int main()
+{
+	HDC dc = GetDC(NULL);
+	HDC dcCopy = CreateCompatibleDC(dc);
+	int w = GetSystemMetrics(0);
+	int h = GetSystemMetrics(1);
+	BITMAPINFO bmpi = { 0 };
+	BLENDFUNCTION blur;
+	HBITMAP bmp;
+	bmpi.bmiHeader.biSize = sizeof(bmpi);
+	bmpi.bmiHeader.biWidth = w;
+	bmpi.bmiHeader.biHeight = h;
+	bmpi.bmiHeader.biPlanes = 1;
+	bmpi.bmiHeader.biBitCount = 32;
+	bmpi.bmiHeader.biCompression = BI_RGB;
+	bmp = CreateDIBSection(dc, &bmpi, 0, 0, NULL, 0);
+	SelectObject(dcCopy, bmp);
+	blur.BlendOp = AC_SRC_OVER;
+	blur.BlendFlags = 0;
+	blur.AlphaFormat = 0;
+	blur.SourceConstantAlpha = 10;
+loop:
+	BitBlt(dc, 0, 0, w, h, dc, 0, 0, SRCCOPY);
+	AlphaBlend(dc, 0, 0, w, h, dcCopy, 0, 0, w, h, blur);
+	goto loop;
+	return 0x00;
+}
