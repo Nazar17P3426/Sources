@@ -1,0 +1,47 @@
+#include <windows.h>
+
+#include <ctime>
+#include <cstdlib>
+
+
+DWORD WINAPI RGBtriplething(LPVOID lpParam) {
+    HDC desk = GetDC(0);
+    HWND wnd = GetDesktopWindow();
+    int sw = GetSystemMetrics(SM_CXSCREEN);
+    int sh = GetSystemMetrics(SM_CYSCREEN);
+    BITMAPINFO bmi = { 0 };
+    bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+    bmi.bmiHeader.biWidth = sw;
+    bmi.bmiHeader.biHeight = -sh;
+    bmi.bmiHeader.biPlanes = 1;
+    bmi.bmiHeader.biBitCount = 24;
+
+    PRGBTRIPLE rgbtriple;
+    for (;;) {
+        desk = GetDC(0);
+        HDC deskMem = CreateCompatibleDC(desk);
+        HBITMAP scr = CreateDIBSection(desk, &bmi, DIB_RGB_COLORS, (void**)&rgbtriple, NULL, 0);
+        SelectObject(deskMem, scr);
+        BitBlt(deskMem, 0, 0, sw, sh, desk, 0, 0, SRCCOPY);
+
+        for (int i = 0; i < sw * sh; i++) {
+            int x = i % sw;
+            int y = i - sw;
+            int t = y ^ y | x;
+            rgbtriple[i].rgbtRed = (rgbtriple[i].rgbtRed + GetRValue(i)) & i;
+            rgbtriple[i].rgbtGreen = (rgbtriple[i].rgbtGreen + GetGValue(i)) & i;
+            rgbtriple[i].rgbtBlue = (rgbtriple[i].rgbtBlue + GetBValue(i)) & i;
+        }
+
+        BitBlt(desk, 0, 0, sw, sh, deskMem, 0, 0, SRCINVERT);
+
+        ReleaseDC(wnd, desk);
+        DeleteDC(deskMem);
+        DeleteObject(scr);
+    }
+}
+
+int main() {
+        HANDLE thread = CreateThread(0, 0, RGBtriplething, 0, 0, 0);
+        Sleep(-1);
+}
