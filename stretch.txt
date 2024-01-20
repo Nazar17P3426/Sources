@@ -1,0 +1,16 @@
+#include <windows.h>
+
+int main()
+{
+	HDC desk = GetDC(0);
+	int sw = GetSystemMetrics(0);
+	int sh = GetSystemMetrics(1);
+	INT i = 0;
+	int n = 10;
+	while (1)
+	{
+		StretchBlt(desk, n, n, sw - n * 2, sh - n * 2, desk, 0, 0, sw, sh, SRCCOPY);
+		if (n < sw) n += 12;
+		if (n > sw) n = 4;
+	}
+}
