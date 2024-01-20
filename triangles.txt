@@ -1,0 +1,54 @@
+#include <windows.h>
+#pragma comment(lib, "winmm.lib")
+#define _USE_MATH_DEFINES 1
+#include <cmath>
+#define M_PI 3.14159265358979323846264338327950288
+
+VOID WINAPI RotatePoints(POINT* points, int count, POINT center, float angle)
+{
+	float cosVal = cos(angle);
+	float sinVal = sin(angle);
+	for (int i = 0; i < count; i++)
+	{
+		int translatedX = points[i].x - center.x;
+		int translatedY = points[i].y - center.y;
+		points[i].x = static_cast<int>(translatedX * cosVal - translatedY * sinVal + center.x);
+		points[i].y = static_cast<int>(translatedX * sinVal + translatedY * cosVal + center.y);
+	}
+}
+
+int main()
+{
+	int w = GetSystemMetrics(SM_CXSCREEN);
+	int h = GetSystemMetrics(SM_CYSCREEN);
+	float rotationAngle = 0.0f;
+	float rotationSpeed = 0.02f;
+	while (1)
+	{
+		HDC hdc = GetDC(0);
+		int rand_num_x = rand() % w;
+		int rand_num_y = rand() % h;
+		int top_x = 0 + rand_num_x;
+		int top_y = 0 + rand_num_y;
+		int bottom_x = 100 + rand_num_x;
+		int bottom_y = 100 + rand_num_y;
+		HBRUSH brush = CreateSolidBrush(RGB(rand() % 255, rand() % 255, rand() % 255));
+		SelectObject(hdc, brush);
+		POINT vertices[] =
+		{
+			{top_x, bottom_y},
+			{bottom_x, bottom_y},
+			{(top_x + bottom_x) / 2, top_y}
+		};
+		POINT center =
+		{
+			(top_x + bottom_x) / 2, (top_y + bottom_y) / 2
+		};
+		RotatePoints(vertices, sizeof(vertices) / sizeof(vertices[0]), center, rotationAngle);
+		Polygon(hdc, vertices, sizeof(vertices) / sizeof(vertices[0]));
+		rotationAngle += rotationSpeed;
+		Sleep(100);
+		DeleteObject(brush);
+		ReleaseDC(0, hdc);
+	}
+}
