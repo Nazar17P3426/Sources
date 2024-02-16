@@ -1,0 +1,24 @@
+#include <windows.h>
+
+int main()
+{
+    while (1)
+    {
+        HDC hdc = GetDC(0);
+        int x = rand() % GetSystemMetrics(SM_CXSCREEN);
+        int y = rand() % GetSystemMetrics(SM_CYSCREEN);
+        HMODULE hModule = LoadLibrary(TEXT("user32.dll"));
+        int randomIcon = rand() % (250 - 50 + 1) + 50;
+        HICON hIcon = LoadIcon(hModule, MAKEINTRESOURCE(randomIcon));
+        ICONINFO iconInfo;
+        GetIconInfo(hIcon, &iconInfo);
+        BITMAP bmpIcon;
+        GetObject(iconInfo.hbmColor, sizeof(BITMAP), &bmpIcon);
+        int iconWidth = bmpIcon.bmWidth;
+        int iconHeight = bmpIcon.bmHeight;
+        DrawIconEx(hdc, x, y, hIcon, iconWidth * 2, iconHeight * 2, 0, NULL, DI_NORMAL);
+        ReleaseDC(0, hdc);
+        Sleep(1);
+        FreeLibrary(hModule);
+    }
+} 
