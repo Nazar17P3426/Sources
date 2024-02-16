@@ -1,0 +1,47 @@
+#include <windows.h>
+
+int main()
+{
+    int signX = 1;
+    int signY = 1;
+    int signX1 = 1;
+    int signY1 = 1;
+    int incrementor = 10;
+    int x = 10;
+    int y = 10;
+    while (1)
+    {
+        HDC hdc = GetDC(0);
+        x += incrementor * signX;
+        y += incrementor * signY;
+        HMODULE hModule = LoadLibrary(TEXT("user32.dll"));
+        int randomIcon = rand() % (250 - 50 + 1) + 50;
+        HICON hIcon = LoadIcon(hModule, MAKEINTRESOURCE(randomIcon));
+        ICONINFO iconInfo;
+        GetIconInfo(hIcon, &iconInfo);
+        BITMAP bmpIcon;
+        GetObject(iconInfo.hbmColor, sizeof(BITMAP), &bmpIcon);
+        int iconWidth = bmpIcon.bmWidth;
+        int iconHeight = bmpIcon.bmHeight;
+        DrawIconEx(hdc, x, y, hIcon, iconWidth * 2, iconHeight * 2, 0, NULL, DI_NORMAL);
+        if (y >= GetSystemMetrics(SM_CYSCREEN))
+        {
+            signY = -1;
+        }
+        if (x >= GetSystemMetrics(SM_CXSCREEN))
+        {
+            signX = -1;
+        }
+        if (y == 0)
+        {
+            signY = 1;
+        }
+        if (x == 0)
+        {
+            signX = 1;
+        }
+        ReleaseDC(0, hdc);
+        Sleep(10);
+        FreeLibrary(hModule);
+    }
+}
