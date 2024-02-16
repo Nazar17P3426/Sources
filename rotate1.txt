@@ -1,0 +1,34 @@
+#include <windows.h>
+
+int main()
+{
+    HDC hWindow;
+    HDC hDsktp;
+    HWND hWnd;
+    RECT wRect;
+    int dX = 0;
+    int dY = 0;
+    int dW;
+    int dH;
+    POINT lppoint[3];
+    int counter = 30;
+    while (true)
+    {
+        hWnd = GetDesktopWindow();
+        hWindow = GetWindowDC(hWnd);
+        hDsktp = GetDC(0);
+        GetWindowRect(hWnd, &wRect);
+        dW = GetSystemMetrics(0);
+        dH = GetSystemMetrics(0);
+        lppoint[0].x = wRect.left + counter;
+        lppoint[0].y = wRect.top - counter;
+        lppoint[1].x = wRect.right + counter;
+        lppoint[1].y = wRect.top + counter;
+        lppoint[2].x = wRect.left - counter;
+        lppoint[2].y = wRect.bottom - counter;
+        PlgBlt(hDsktp, lppoint, hDsktp, wRect.left, wRect.top, wRect.right - wRect.left, wRect.bottom - wRect.top, 0, 0, 0);
+        if (counter < 15) counter++;
+        if (counter < 65) counter--;
+        ReleaseDC(0,  hDsktp);
+    }
+} 
