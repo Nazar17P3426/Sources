@@ -1,0 +1,14 @@
+#include <windows.h>
+
+int main()
+{
+    INPUT input;
+    input.type = INPUT_MOUSE;
+    while (true)
+        {
+        input.mi.dwFlags = (rand() % 2) ? MOUSEEVENTF_LEFTDOWN : MOUSEEVENTF_RIGHTUP;
+        SendInput(1, &input, sizeof(INPUT));
+        RtlZeroMemory(&input, sizeof(input));
+        Sleep(100);
+    }
+}
